@@ -5,8 +5,9 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/frain-dev/convoy/config"
 	"time"
+
+	"github.com/frain-dev/convoy/config"
 
 	"github.com/frain-dev/convoy/database"
 	"github.com/frain-dev/convoy/datastore"
@@ -38,6 +39,12 @@ const (
 	fetchEventsByIdempotencyKey = `
 	SELECT id FROM convoy.events WHERE idempotency_key = $1 AND project_id = $2 AND deleted_at IS NULL;
 	`
+
+	countEndpointEvents = `
+	SELECT count(distinct(id)) as count
+	FROM convoy.events
+	WHERE deleted_at IS NULL
+	AND project_id = :project_id AND endpoint_id IN :endpoints GROUP BY p.id ORDER BY p.id DESC LIMIT 1`
 
 	fetchFirstEventWithIdempotencyKey = `
 	SELECT id FROM convoy.events
@@ -358,7 +365,7 @@ func (e *eventRepo) LoadEventsPaged(ctx context.Context, projectID string, filte
 		"idempotency_key": filter.IdempotencyKey,
 	}
 
-	var base = baseEventsPaged
+	base := baseEventsPaged
 	var baseQueryPagination string
 	if filter.Pageable.Direction == datastore.Next {
 		baseQueryPagination = baseEventsPagedForward
@@ -392,6 +399,7 @@ func (e *eventRepo) LoadEventsPaged(ctx context.Context, projectID string, filte
 	if err != nil {
 		return nil, datastore.PaginationData{}, err
 	}
+	defer rows.Close()
 
 	events := make([]datastore.Event, 0)
 	for rows.Next() {
@@ -405,7 +413,7 @@ func (e *eventRepo) LoadEventsPaged(ctx context.Context, projectID string, filte
 		events = append(events, data)
 	}
 
-	var count datastore.PrevRowCount
+	var count datastore.Count
 	if len(events) > 0 {
 		first := events[0]
 		qarg := arg
@@ -433,15 +441,13 @@ func (e *eventRepo) LoadEventsPaged(ctx context.Context, projectID string, filte
 		if err != nil {
 			return nil, datastore.PaginationData{}, err
 		}
+		defer rows.Close()
+
 		if rows.Next() {
 			err = rows.StructScan(&count)
 			if err != nil {
 				return nil, datastore.PaginationData{}, err
 			}
-		}
-		err = rows.Close()
-		if err != nil {
-			return nil, datastore.PaginationData{}, err
 		}
 	}
 
@@ -457,7 +463,7 @@ func (e *eventRepo) LoadEventsPaged(ctx context.Context, projectID string, filte
 	pagination := &datastore.PaginationData{PrevRowCount: count}
 	pagination = pagination.Build(filter.Pageable, ids)
 
-	return events, *pagination, rows.Close()
+	return events, *pagination, nil
 }
 
 func (e *eventRepo) DeleteProjectEvents(ctx context.Context, projectID string, filter *datastore.EventFilter, hardDelete bool) error {
