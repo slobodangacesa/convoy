@@ -28,7 +28,7 @@ const (
 	`
 	baseMetaEventsPaged = `
 	SELECT mv.id, mv.project_id, mv.event_type,
-	mv.metadata, mv.attempt, mv.status, 
+	mv.metadata, mv.attempt, mv.status,
 	mv.created_at, mv.updated_at FROM convoy.meta_events mv
 	WHERE mv.deleted_at IS NULL
 	`
@@ -62,13 +62,13 @@ const (
 	AND deleted_at IS NULL;
 	`
 	updateMetaEvent = `
-	UPDATE convoy.meta_events SET 
+	UPDATE convoy.meta_events SET
 	  event_type = $3,
 	  metadata = $4,
 	  attempt = $5,
 	  status = $6,
 	  updated_at = now()
-	WHERE id = $1 AND project_id = $2 AND deleted_at IS NULL; 
+	WHERE id = $1 AND project_id = $2 AND deleted_at IS NULL;
 	`
 )
 
@@ -162,7 +162,7 @@ func (m *metaEventRepo) LoadMetaEventsPaged(ctx context.Context, projectID strin
 		metaEvents = append(metaEvents, data)
 	}
 
-	var count datastore.PrevRowCount
+	var count datastore.Count
 	if len(metaEvents) > 0 {
 		first := metaEvents[0]
 		qarg := arg

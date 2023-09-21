@@ -62,21 +62,21 @@ const (
 	AND project_id = :project_id`
 
 	baseFetchDevicesPagedForward = `
-	%s 
-	%s 
-	AND id <= :cursor 
+	%s
+	%s
+	AND id <= :cursor
 	GROUP BY id
-	ORDER BY id DESC 
+	ORDER BY id DESC
 	LIMIT :limit
 	`
 
 	baseFetchDevicesPagedBackward = `
-	WITH devices AS (  
-		%s 
-		%s 
-		AND id >= :cursor 
+	WITH devices AS (
+		%s
+		%s
+		AND id >= :cursor
 		GROUP BY id
-		ORDER BY id ASC 
+		ORDER BY id ASC
 		LIMIT :limit
 	)
 
@@ -85,7 +85,7 @@ const (
 
 	countPrevDevices = `
 	SELECT count(distinct(id)) as count
-	FROM convoy.devices 
+	FROM convoy.devices
 	WHERE deleted_at IS NULL
 	%s
 	AND id > :cursor GROUP BY id ORDER BY id DESC LIMIT 1`
@@ -262,7 +262,7 @@ func (d *deviceRepo) LoadDevicesPaged(ctx context.Context, projectID string, fil
 		devices = append(devices, data.Device)
 	}
 
-	var count datastore.PrevRowCount
+	var count datastore.Count
 	if len(devices) > 0 {
 		var countQuery string
 		var qargs []interface{}

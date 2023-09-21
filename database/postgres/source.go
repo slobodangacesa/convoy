@@ -408,7 +408,7 @@ func (s *sourceRepo) LoadSourcesPaged(ctx context.Context, projectID string, fil
 		sources = append(sources, source)
 	}
 
-	var count datastore.PrevRowCount
+	var count datastore.Count
 	if len(sources) > 0 {
 		var countQuery string
 		var qargs []interface{}

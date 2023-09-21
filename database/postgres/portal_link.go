@@ -129,7 +129,8 @@ const (
 	COALESCE(p.owner_id, '') as "owner_id",
 	p.created_at,
 	p.updated_at,
-	array_to_json(ARRAY_AGG(json_build_object('uid', e.id, 'title', e.title, 'project_id', e.project_id, 'target_url', e.target_url)))  AS endpoints_metadata
+	array_to_json(ARRAY_AGG(json_build_object('uid', e.id, 'title', e.title, 'project_id', e.project_id, 'target_url', e.target_url)))  AS endpoints_metadata,
+	COALESCE((SELECT COUNT(*) FROM convoy.events_endpoints as ev WHERE ev.endpoint_id IN (SELECT UNNEST(p.endpoints::VARCHAR[]))), 0) AS event_count
 	FROM convoy.portal_links p
 	LEFT JOIN convoy.portal_links_endpoints pe
 		ON p.id = pe.portal_link_id
@@ -345,7 +346,7 @@ func (p *portalLinkRepo) LoadPortalLinksPaged(ctx context.Context, projectID str
 		portalLinks = append(portalLinks, link)
 	}
 
-	var count datastore.PrevRowCount
+	var count datastore.Count
 	if len(portalLinks) > 0 {
 		var countQuery string
 		var qargs []interface{}

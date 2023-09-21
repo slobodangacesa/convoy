@@ -44,16 +44,16 @@ const (
 	SELECT * FROM convoy.users WHERE deleted_at IS NULL`
 
 	fetchUsersPagedForward = `
-	%s 
-	AND id <= :cursor 
+	%s
+	AND id <= :cursor
 	GROUP BY id
-	ORDER BY id DESC 
+	ORDER BY id DESC
 	LIMIT :limit`
 
 	fetchUsersPagedBackward = `
-	WITH users AS (  
-		%s 
-		AND id >= :cursor 
+	WITH users AS (
+		%s
+		AND id >= :cursor
 		GROUP BY id
 		ORDER BY id ASC
 		LIMIT :limit
@@ -65,7 +65,7 @@ const (
 	SELECT count(distinct(id)) as count
 	FROM convoy.users
 	WHERE deleted_at IS NULL
-	AND id > :cursor 
+	AND id > :cursor
 	GROUP BY id
 	ORDER BY id DESC
 	LIMIT 1`
@@ -233,7 +233,7 @@ func (u *userRepo) LoadUsersPaged(ctx context.Context, pageable datastore.Pageab
 		users = append(users, user)
 	}
 
-	var count datastore.PrevRowCount
+	var count datastore.Count
 	if len(users) > 0 {
 		var countQuery string
 		var qargs []interface{}

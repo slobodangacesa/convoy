@@ -48,17 +48,17 @@ const (
 	`
 
 	baseFetchOrganizationsPagedForward = `
-	%s 
-	AND id <= :cursor 
+	%s
+	AND id <= :cursor
 	GROUP BY id
-	ORDER BY id DESC 
+	ORDER BY id DESC
 	LIMIT :limit
 	`
 
 	baseFetchOrganizationsPagedBackward = `
-	WITH organizations AS (  
-		%s 
-		AND id >= :cursor 
+	WITH organizations AS (
+		%s
+		AND id >= :cursor
 		GROUP BY id
 		ORDER BY id ASC
 		LIMIT :limit
@@ -148,7 +148,7 @@ func (o *orgRepo) LoadOrganisationsPaged(ctx context.Context, pageable datastore
 		organizations = append(organizations, org)
 	}
 
-	var count datastore.PrevRowCount
+	var count datastore.Count
 	if len(organizations) > 0 {
 		var countQuery string
 		var qargs []interface{}

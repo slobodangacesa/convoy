@@ -48,15 +48,15 @@ func (p Pageable) Limit() int {
 }
 
 type PaginationData struct {
-	PrevRowCount    PrevRowCount `json:"-"`
-	PerPage         int64        `json:"per_page"`
-	HasNextPage     bool         `json:"has_next_page"`
-	HasPreviousPage bool         `json:"has_prev_page"`
-	PrevPageCursor  string       `json:"prev_page_cursor"`
-	NextPageCursor  string       `json:"next_page_cursor"`
+	PrevRowCount    Count  `json:"-"`
+	PerPage         int64  `json:"per_page"`
+	HasNextPage     bool   `json:"has_next_page"`
+	HasPreviousPage bool   `json:"has_prev_page"`
+	PrevPageCursor  string `json:"prev_page_cursor"`
+	NextPageCursor  string `json:"next_page_cursor"`
 }
 
-type PrevRowCount struct {
+type Count struct {
 	Count int
 }
 
@@ -1328,10 +1328,10 @@ type PortalLink struct {
 	Endpoints         pq.StringArray   `json:"endpoints" db:"endpoints"`
 	EndpointsMetadata EndpointMetadata `json:"endpoints_metadata" db:"endpoints_metadata"`
 	CanManageEndpoint bool             `json:"can_manage_endpoint" db:"can_manage_endpoint"`
-
-	CreatedAt time.Time `json:"created_at,omitempty" db:"created_at,omitempty" swaggertype:"string"`
-	UpdatedAt time.Time `json:"updated_at,omitempty" db:"updated_at,omitempty" swaggertype:"string"`
-	DeletedAt null.Time `json:"deleted_at,omitempty" db:"deleted_at,omitempty" swaggertype:"string"`
+	EventCount        int              `json:"event_count" db:"event_count"`
+	CreatedAt         time.Time        `json:"created_at,omitempty" db:"created_at,omitempty" swaggertype:"string"`
+	UpdatedAt         time.Time        `json:"updated_at,omitempty" db:"updated_at,omitempty" swaggertype:"string"`
+	DeletedAt         null.Time        `json:"deleted_at,omitempty" db:"deleted_at,omitempty" swaggertype:"string"`
 }
 
 // Deprecated

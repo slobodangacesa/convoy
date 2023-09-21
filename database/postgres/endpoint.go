@@ -397,7 +397,7 @@ func (e *endpointRepo) LoadEndpointsPaged(ctx context.Context, projectId string,
 		endpoints = endpoints[:len(endpoints)-1]
 	}
 
-	var count datastore.PrevRowCount
+	var count datastore.Count
 	if len(endpoints) > 0 {
 		var countQuery string
 		var qargs []interface{}

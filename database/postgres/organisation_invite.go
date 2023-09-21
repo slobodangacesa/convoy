@@ -85,18 +85,18 @@ const (
 
 	baseFetchInvitesPagedForward = `
 	%s
-	AND id <= :cursor 
+	AND id <= :cursor
 	GROUP BY id
-	ORDER BY id DESC 
+	ORDER BY id DESC
 	LIMIT :limit
 	`
 
 	baseFetchInvitesPagedBackward = `
 	WITH organisation_invites AS (
 		%s
-		AND id >= :cursor 
+		AND id >= :cursor
 		GROUP BY id
-		ORDER BY id ASC 
+		ORDER BY id ASC
 		LIMIT :limit
 	)
 
@@ -108,7 +108,7 @@ const (
 	FROM convoy.organisation_invites
 	WHERE organisation_id = :org_id
 	AND deleted_at IS NULL
-	AND id > :cursor 
+	AND id > :cursor
 	GROUP BY id
 	ORDER BY id DESC
 	LIMIT 1
@@ -213,7 +213,7 @@ func (i *orgInviteRepo) LoadOrganisationsInvitesPaged(ctx context.Context, orgID
 		invites = append(invites, iv)
 	}
 
-	var count datastore.PrevRowCount
+	var count datastore.Count
 	if len(invites) > 0 {
 		var countQuery string
 		var qargs []interface{}

@@ -264,7 +264,7 @@ func (o *orgMemberRepo) LoadOrganisationMembersPaged(ctx context.Context, organi
 		members = append(members, &member)
 	}
 
-	var count datastore.PrevRowCount
+	var count datastore.Count
 	if len(members) > 0 {
 		var countQuery string
 		var qargs []interface{}
@@ -351,7 +351,7 @@ func (o *orgMemberRepo) LoadUserOrganisationsPaged(ctx context.Context, userID s
 		organisations = append(organisations, org)
 	}
 
-	var count datastore.PrevRowCount
+	var count datastore.Count
 	if len(organisations) > 0 {
 		var countQuery string
 		var qargs []interface{}

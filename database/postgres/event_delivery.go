@@ -578,7 +578,7 @@ func (e *eventDeliveryRepo) LoadEventDeliveriesPaged(ctx context.Context, projec
 		})
 	}
 
-	var count datastore.PrevRowCount
+	var count datastore.Count
 	if len(eventDeliveries) > 0 {
 		var countQuery string
 		var qargs []interface{}

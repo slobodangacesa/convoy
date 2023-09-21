@@ -326,7 +326,7 @@ func (s *subscriptionRepo) LoadSubscriptionsPaged(ctx context.Context, projectID
 		return nil, datastore.PaginationData{}, err
 	}
 
-	var count datastore.PrevRowCount
+	var count datastore.Count
 	if len(subscriptions) > 0 {
 		var countQuery string
 		var qargs []interface{}

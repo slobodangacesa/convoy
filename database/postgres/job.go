@@ -314,7 +314,7 @@ func (j *jobRepo) LoadJobsPaged(ctx context.Context, projectID string, pageable 
 		jobs = append(jobs, data.Job)
 	}
 
-	var count datastore.PrevRowCount
+	var count datastore.Count
 	if len(jobs) > 0 {
 		var countQuery string
 		var qargs []interface{}

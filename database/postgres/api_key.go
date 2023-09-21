@@ -76,25 +76,25 @@ const (
 	baseApiKeysFilter = `
 	AND (role_project = :project_id OR :project_id = '')
 	AND (role_endpoint = :endpoint_id OR :endpoint_id = '')
-	AND (user_id = :user_id OR :user_id = '') 
+	AND (user_id = :user_id OR :user_id = '')
 	AND (key_type = :key_type OR :key_type = '')`
 
 	baseFetchAPIKeysPagedForward = `
-	%s 
-	%s 
-	AND id <= :cursor 
+	%s
+	%s
+	AND id <= :cursor
 	GROUP BY id
-	ORDER BY id DESC 
+	ORDER BY id DESC
 	LIMIT :limit
 	`
 
 	baseFetchAPIKeysPagedBackward = `
-	WITH api_keys AS (  
-		%s 
-		%s 
-		AND id >= :cursor 
+	WITH api_keys AS (
+		%s
+		%s
+		AND id >= :cursor
 		GROUP BY id
-		ORDER BY id ASC 
+		ORDER BY id ASC
 		LIMIT :limit
 	)
 
@@ -106,9 +106,9 @@ const (
 	FROM convoy.api_keys s
 	WHERE s.deleted_at IS NULL
 	%s
-	AND id > :cursor 
-	GROUP BY id 
-	ORDER BY id 
+	AND id > :cursor
+	GROUP BY id
+	ORDER BY id
 	DESC LIMIT 1`
 )
 
@@ -327,7 +327,7 @@ func (a *apiKeyRepo) LoadAPIKeysPaged(ctx context.Context, filter *datastore.Api
 		apiKeys = append(apiKeys, ak.APIKey)
 	}
 
-	var count datastore.PrevRowCount
+	var count datastore.Count
 	if len(apiKeys) > 0 {
 		var countQuery string
 		var qargs []interface{}
