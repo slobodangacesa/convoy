@@ -145,6 +145,7 @@ func (s *SourceLoader) handler(ctx context.Context, source *datastore.Source, ms
 			UID:            ulid.Make().String(),
 			ProjectID:      source.ProjectID,
 			EndpointID:     ev.EndpointID,
+			OwnerID:        ev.OwnerID,
 			EventType:      ev.EventType,
 			Data:           ev.Data,
 			CustomHeaders:  ev.CustomHeaders,

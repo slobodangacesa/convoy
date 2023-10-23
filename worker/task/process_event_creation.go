@@ -23,6 +23,7 @@ type CreateEventTaskParams struct {
 	ProjectID      string
 	AppID          string            `json:"app_id"`
 	EndpointID     string            `json:"endpoint_id"`
+	OwnerID        string            `json:"owner_id"`
 	SourceID       string            `json:"source_id"`
 	Data           json.RawMessage   `json:"data"`
 	EventType      string            `json:"event_type"`
@@ -381,7 +382,7 @@ func buildEvent(ctx context.Context, eventRepo datastore.EventRepository, endpoi
 		return nil, errors.New("an error occurred while creating event - invalid project")
 	}
 
-	if util.IsStringEmpty(eventParams.AppID) && util.IsStringEmpty(eventParams.EndpointID) {
+	if util.IsStringEmpty(eventParams.AppID) && util.IsStringEmpty(eventParams.EndpointID) && util.IsStringEmpty(eventParams.OwnerID) {
 		return nil, errors.New("please provide an endpoint ID")
 	}
 
@@ -426,6 +427,19 @@ func buildEvent(ctx context.Context, eventRepo datastore.EventRepository, endpoi
 func findEndpoints(ctx context.Context, endpointRepo datastore.EndpointRepository, newMessage *CreateEventTaskParams,
 	project *datastore.Project) ([]datastore.Endpoint, error) {
 	var endpoints []datastore.Endpoint
+
+	if !util.IsStringEmpty(newMessage.OwnerID) {
+		ownerIdEndpoints, err := endpointRepo.FindEndpointsByOwnerID(ctx, project.UID, newMessage.OwnerID)
+		if err != nil {
+			return endpoints, err
+		}
+
+		if len(ownerIdEndpoints) == 0 {
+			return endpoints, errors.New("owner ID has no configured endpoints")
+		}
+
+		endpoints = append(endpoints, ownerIdEndpoints...)
+	}
 
 	if !util.IsStringEmpty(newMessage.EndpointID) {
 		endpoint, err := endpointRepo.FindEndpointByID(ctx, newMessage.EndpointID, project.UID)
