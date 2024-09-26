@@ -9,14 +9,14 @@ import (
 	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
 	"os"
 	"time"
-
 	"github.com/frain-dev/convoy/internal/pkg/exporter"
-
 	"github.com/frain-dev/convoy"
 	"github.com/frain-dev/convoy/datastore"
 	objectstore "github.com/frain-dev/convoy/datastore/object-store"
 	"github.com/frain-dev/convoy/pkg/log"
 	"github.com/hibiken/asynq"
+	"bytes"
+	"compress/gzip"
 )
 
 const (
@@ -151,6 +151,7 @@ func ExportCollection(
 	projectRepo datastore.ProjectRepository, exportRepo datastore.ExportRepository,
 ) error {
 	out := GetArgsByCollection(tableName, exportDir, project)
+	tempFile := out + ".tmp" // Temporary file name for compression
 
 	dbExporter := &exporter.Exporter{
 		TableName: tableName,
@@ -166,11 +167,28 @@ func ExportCollection(
 
 	if numDocs == 0 {
 		log.Printf("there is nothing to backup, will remove temp file at %s", out)
-		return os.Remove(out)
+		return os.Remove(tempFile)
+	}
+
+	// Compress the file before uploading to the object store
+	err = compressFile(out, tempFile)
+	if err != nil {
+		return err
 	}
 
 	// upload to object store
 	err = objectStoreClient.Save(out)
+	if err != nil {
+		return err
+	}
+	// Cleanup temporary file if the upload was successful
+	err = os.Remove(tempFile)
+	if err != nil {
+		return err
+	}
+
+	// Cleanup out file if the upload was successful
+	err = os.Remove(out)
 	if err != nil {
 		return err
 	}
@@ -206,6 +224,32 @@ func ExportCollection(
 		if err != nil {
 			return err
 		}
+	}
+
+	return nil
+}
+
+func compressFile(outFile, inFile string) error {
+	inputBytes, err := os.ReadFile(inFile)
+	if err != nil {
+		return err
+	}
+
+	var buf bytes.Buffer
+	gzipWriter := gzip.NewWriter(&buf)
+	_, err = gzipWriter.Write(inputBytes)
+	if err != nil {
+		return err
+	}
+
+	err = gzipWriter.Close()
+	if err != nil {
+		return err
+	}
+
+	err = os.WriteFile(outFile, buf.Bytes(), 0644)
+	if err != nil {
+		return err
 	}
 
 	return nil
